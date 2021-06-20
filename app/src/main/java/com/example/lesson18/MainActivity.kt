@@ -1,14 +1,16 @@
 package com.example.lesson18
 
-import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.method.ScrollingMovementMethod
-import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import com.example.lesson18.allThreads.FirstThread
+import com.example.lesson18.allThreads.FourthThread
+import com.example.lesson18.allThreads.SecondThread
+import com.example.lesson18.allThreads.ThirdThread
 import java.lang.StringBuilder
 import java.util.concurrent.Executors
 
@@ -22,8 +24,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var firstThread: FirstThread
     private lateinit var secondThread: SecondThread
-//    private lateinit var thirdThread: ThirdThread
-//    private lateinit var fourthThread: FourthThread
+    private lateinit var thirdThread: ThirdThread
+    private lateinit var fourthThread: FourthThread
 
     private val handler = Handler(Looper.getMainLooper())
     private val stringBuilder = StringBuilder()
@@ -58,8 +60,8 @@ class MainActivity : AppCompatActivity() {
             isRunning = true
             openFirstThread()
             openSecondThread()
-//            openThirdThread()
-//            openFourthThread()
+            openThirdThread()
+            openFourthThread()
         }
     }
 
@@ -69,52 +71,32 @@ class MainActivity : AppCompatActivity() {
                 handler.post{thisText.append(it)}
             }
         })
-        firstThread.execute()
+        firstThread.executeOnExecutor(Executors.newFixedThreadPool(4))
     }
 
     private fun openSecondThread() {
         secondThread = SecondThread(list, lock)
-        secondThread.execute()
+        secondThread.executeOnExecutor(Executors.newFixedThreadPool(4))
     }
 
-//    private fun openThirdThread() {
-//        thirdThread = Thread {
-//            var count = 0
-//            while (count < 10 || count == 10) {
-//                if (count < 10) {
-//                    addMessageToList("ФЫВФЫВ${count++}")
-//                    Thread.sleep(5000)
-//                } else {
-//                    addMessageToList("asd${count++}")
-//                    isRunning = false
-//                    firstThread.join()
-//                    Log.d("key", "Поток1 завершил работу ")
-//                    secondThread.join()
-//                    Log.d("key", "Поток2 завершил работу ")
-//                    synchronized(lock) {
-//                        lock.notify()
-//                    }
-//                    fourthThread.join()
-//                    Log.d("key", "Поток4 завершил работу ")
-//                    handler.post { startBtn.isEnabled = true }
-//                }
-//            }
-//        }
-//        thirdThread.start()
-//    }
-//
-//    private fun openFourthThread() {
-//        fourthThread = Thread {
-//            synchronized(lock) {
-//                while (isRunning) {
-//                    lock.wait()
-//                    addMessageToList("YOP")
-//                }
-//
-//            }
-//        }
-//        fourthThread.start()
-//    }
+    private fun openThirdThread() {
+        thirdThread = ThirdThread(list, lock, closeTasks = {
+            firstThread.cancel(true)
+            secondThread.cancel(true)
+            synchronized(lock){
+                lock.notify()
+            }
+            fourthThread.cancel(true)
+        }, enabledStartBtn = {
+            startBtn.isEnabled = true
+        })
+        thirdThread.executeOnExecutor(Executors.newFixedThreadPool(4))
+    }
+
+    private fun openFourthThread() {
+        fourthThread = FourthThread(list, lock)
+        fourthThread.executeOnExecutor(Executors.newFixedThreadPool(4))
+    }
 
     private fun addMessageToList(message: String) {
         synchronized(lock) {

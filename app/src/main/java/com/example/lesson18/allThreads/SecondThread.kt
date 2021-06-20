@@ -1,7 +1,8 @@
-package com.example.lesson18
+package com.example.lesson18.allThreads
 
 import android.os.AsyncTask
 import android.util.Log
+import com.example.lesson18.ListFunctions
 
 class SecondThread(
     val listFunctions: ListFunctions,
@@ -10,6 +11,7 @@ class SecondThread(
     override fun doInBackground(vararg params: Void?): Void {
         var nextPrimeNumber = 2
         while (true) {
+            if (isCancelled) Thread.interrupted()
             var dividerCount = 0
             for (i in nextPrimeNumber..400) {
                 if (nextPrimeNumber % i == 0) {

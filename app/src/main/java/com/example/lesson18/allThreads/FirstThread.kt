@@ -1,18 +1,18 @@
-package com.example.lesson18
+package com.example.lesson18.allThreads
 
 import android.os.AsyncTask
-import android.util.Log
+import com.example.lesson18.ListFunctions
 
-class FirstThread(val list:ListFunctions,
+class FirstThread(val list: ListFunctions,
                   val setText:(MutableList<String>) -> Unit
                   ):AsyncTask<Void,MutableList<String>,MutableList<String>>() {
     override fun doInBackground(vararg params: Void?): MutableList<String> {
         while (true){
+            if (isCancelled) Thread.interrupted()
             Thread.sleep(100)
             list.getMessages().let { thisList ->
                 publishProgress(thisList)
             }
-            Log.d("key", "Прошел первый поток")
         }
     }
 
