@@ -8,7 +8,8 @@ class ThirdThread(
     private val listFunctions: ListFunctions,
     val lock: Object,
     val closeTasks: () -> Unit,
-    private val enabledStartBtn: () -> Unit
+    private val enabledStartBtn: () -> Unit,
+    val sendCount: (Int) -> Unit
 ) : AsyncTask<Void, Void, Void>() {
     override fun doInBackground(vararg params: Void?): Void? {
         var count = 0

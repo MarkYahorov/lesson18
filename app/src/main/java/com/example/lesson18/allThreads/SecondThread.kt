@@ -6,7 +6,8 @@ import com.example.lesson18.ListFunctions
 
 class SecondThread(
     val listFunctions: ListFunctions,
-    val lock: Object
+    val lock: Object,
+    val sendToBroadcastNumber: (Int) -> Unit
 ) : AsyncTask<Void, Void, Void>() {
     override fun doInBackground(vararg params: Void?): Void {
         var nextPrimeNumber = 2
